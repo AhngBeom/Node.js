@@ -1,0 +1,31 @@
+extends layout
+
+block content
+    #board-input-form
+      .card.col-xl-12.mb-3.p-3.rounded
+        .d-flex.no-gutters
+          .col-xl-3.col-md-3.align-self-center.m-3.p-3
+            img.w-100.rounded-circle#profile-img(src=picture)
+          .col-lg-8
+            .shadow-lg
+              input.form-control(type="text" id='username' value=name readonly)
+            .card-body
+              p.card-text
+                .content
+                  textarea.form-control.shadow-lg.w-100(name="" cols="50" rows="5")
+              input.float-right.btn.btn-secondary#board-submit(type="button", value="Submit")
+    #board-list
+      .item
+    //- #message 
+    //-   .left 
+    //-     img.photo(src=picture)
+    //-     input#displayName.displayName(type='text', value= name, readonly)
+    //-     //- input(type="button", value="Refresh")
+    //-   .right
+    //-     textarea(placeholder='내용을 입력하세요.')
+    //-     br
+    //-     //- input#passwordInput(type='text' placeholder='비밀번호를 입력하세요')
+    //-     br
+    //-     input#write_button(type="button" value='쓰기')
+    //- #wall
+    //-   .item

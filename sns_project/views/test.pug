@@ -1,0 +1,55 @@
+extends layout
+
+block content
+  .card.col-xl-12.mb-3.p-3.rounded
+    .d-flex.no-gutters
+      .col-xl-3.col-md-3.align-self-center.m-3.p-3
+        img.w-100.rounded-circle(src=picture)
+      .col-lg-8
+        .shadow-lg
+          input.form-control(type="text" name="" value=name readonly)
+        .card-body
+          p.card-text
+            .content
+              textarea.form-control.shadow-lg.w-100(name="" cols="50" rows="10")
+          input.float-right.btn.btn-secondary(type="button", value="Submit")
+  .card
+    .card-header.d-flex.justify-content-between
+      .d-flex
+        img.rounded-circle(src=picture, width="70px")
+        .h5.alert.alert-success.m-2.p-3(role='alert')
+          | Username
+      .d-flex
+        a.mr-3(href="#")
+          i.fas.fa-thumbs-up.fa-5x.text-primary
+        a.mr-3(href="#")
+          i.fas.fa-thumbs-up.fa-5x.text-warning.fa-rotate-180
+        .btn-group
+          button.btn.btn-secondary.dropdown-toggle(type='button', data-toggle='dropdown', data-display='static', aria-haspopup='true', aria-expanded='false')
+          .dropdown-menu.dropdown-menu-right.dropdown-menu-lg-right
+            button.dropdown-item(type='button') MODIFY
+            button.dropdown-item(type='button') DELETE
+    .card-body
+      h5.card-title Content
+    .card-footer.text-center.text-muted.btn(data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample")
+      i.fas.fa-angle-double-down.mr-3
+      | View Comments Button
+    #collapseExample.collapse
+      ul.list-group.list-group-flush
+        li.list-group-item.d-flex.justify-content-between
+          .d-flex
+            .alert.alert-info.col-xl-6.m-0
+              | Writer : Cras justo odio
+            a.mt-2.ml-3.mr-3(href="#")
+              i.fas.fa-thumbs-up.text-primary 1
+            a.mt-2.mr-3(href="#")
+              i.fas.fa-thumbs-down.text-warning 2
+          div
+            a.mr-3(href="#") 수정
+            a.mr-3(href="#") 삭제
+      .input-group
+        .input-group-prepend
+          span.input-group-text #{name}
+        input.form-control(type='text', placeholder="Comment")
+        .input-group-append
+          button#button-addon2.btn.btn-outline-primary(type='button') Submit
