@@ -1,0 +1,36 @@
+doctype 5
+html(style='height:100%;')
+  head
+    title= 'Chat'
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css")
+    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js")
+    script(src='/socket.io/socket.io.js')
+    script(src='https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js')
+    script(src='//code.jquery.com/jquery-3.5.1.js')
+  body(style='height:100%;')
+    div.d-flex.flex-column.justify-content-center
+      div.d-flex.justify-content-center
+        button.btn.btn-info(type='button') Goorm 채팅방
+      div
+        textarea#chatLog.form-control(readonly='')
+      form#chat
+        input#name.form-contorl(type='text')
+        input#message.form-contorl(type='text')
+        button.btn.btn-primary(type='submit') 전송
+      #box.box
+    script.
+      var socket = io(); 
+      $('#chat').on('submit', function(e){ 
+      socket.emit('send message', $('#name').val(), $('#message').val());
+      $('#message').val('');
+      $('#message').focus();
+      e.preventDefault();
+      });
+      socket.on('create name', function(name){ 
+      $('#name').val(name);
+      });
+      socket.on('receive message', function(msg){ 
+      $('#chatLog').append(msg+'\n');
+      $('#chatLog').scrollTop($('#chatLog')[0].scrollHeight);
+      });

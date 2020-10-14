@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js">
+    </script>
+    <title>Chatting Service</title>
+</head>
+
+<body style="height: 100%;">
+    <div class='container-fluid mt-2 mb-2' style="height: 100%;">
+
+        <div class="card" style="height: 100%;">
+            <div class="card-header d-flex justify-content-between">
+                <div class="dropdown1">
+                    <button class="btn btn-warning dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown">
+                      <div id="room-user-total"></div>
+                    </button>
+                    <div class="dropdown-menu" id="chat-userList">
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div id="roomname"></div>
+                    <!-- <div class="h5">채팅창</div> -->
+                    <div class='text-primary' id="username"></div>
+                    <!-- <div id="socketId"></div> -->
+                </div>
+                <button class="btn btn-danger float-right" id="chat-exit-btn">채팅방 나가기</button>
+
+                <!-- Modal -->
+                <div class="modal fade bg-dark" id="chat-ready-modal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <div class="modal-title h5 text-center" id="exampleModalCenterTitle">채팅방 들어가기</div>
+                                <!-- <button type="button" class="btn btn-warning" id="chat-room-create">채팅방 생성</button> -->
+                            </div>
+                            <div class="modal-body">
+
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                      <label class="input-group-text" for="inputGroupSelect01">채팅방</label>
+                                    </div>
+                                    <select class="custom-select" id="chat-room-select">
+                                      <option value="false" selected>Choose...</option>
+                                      <option value="ROOM 1">ROOM 1</option>
+                                      <option value="ROOM 2">ROOM 2</option>
+                                      <option value="ROOM 3">ROOM 3</option>
+                                    </select>
+                                  </div>
+
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" placeholder="Nickname" id="username-input">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-primary" type="button" id="username-check-btn"
+                                            data-checked=false>중복확인</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="text-danger" id="modal-alrty-msg"></div>
+                                <button type="button" class="btn btn-primary" id="chat-start-btn">입장하기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" id="chat-log" style="overflow: scroll;">
+
+            </div>
+            <div class="card-footer text-muted">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Send Message" id="send-msg-input">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success" type="button" id="send-msg-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+
+            $("#chat-ready-modal").modal({
+                show: true,
+                backdrop: "static"
+            });
+            // socketIO();
+
+            $('#chat-ready-modal').on('show.bs.modal', function (e) {
+                $("body").attr('class', 'bg-secondary');
+            });
+
+            $("#username-check-btn").click(function (e) {
+                if ($("#username-input").val() === "") {
+                    $("#modal-alrty-msg").html("닉네임을 입력해주세요.");
+                } else {
+                    $("#modal-alrty-msg").html("");
+                    $(this).attr('class', 'btn btn-success').data('checked', true).attr(
+                        'disabled', 'disabled');
+                }
+            });
+            $("#username-input").change(function (e) {
+                $("#username-check-btn").attr('class', 'btn btn-outline-primary').data(
+                    'checked', "false").removeAttr('disabled');
+            })
+            $("#chat-start-btn").click(function (e) {
+                var usernameChecked = $("#username-check-btn").data('checked');
+                // console.log(usernameChecked != true);
+                if($("#chat-room-select").val() == "false"){
+                    $("#modal-alrty-msg").html("채팅방을 선택해주세요.");
+                }
+                else if (usernameChecked != true) {
+                    $("#modal-alrty-msg").html("닉네임 중복확인을 해주세요.");
+                }
+                 else {
+                    socketIO($("#username-input").val(), $("#chat-room-select").val());
+                    $("#chat-ready-modal").modal('hide');
+                }
+            });
+
+            $("#chat-room-create").click(function(e){
+                console.log("채팅방 생성");
+            });
+        });
+
+        var socketIO = function (username, room) {
+            var socket = io();
+            var socketId;
+            
+            socket.on('socket id', function (id) {
+                // $('#socketId').html(id);
+                socketId = id;
+                socket.emit('receive client', username, room);
+                $('#roomname').html(room);
+                $('#username').html(username);
+                socket.emit('send alert', 'connected', username);
+            });
+           
+
+            socket.on('this room in users', function(users){
+                $("#chat-userList").empty();
+                $("#room-user-total").html('유저 목록 [' + users.length + ']');
+                $(users).each(function(i){
+                    $("#chat-userList").append("<div class='dropdown-item'>" + this + "</div>");
+                });
+            });
+
+            socket.on('create name', function (name) {
+                // $('#username').html(name);
+                // username = name;
+                // socket.emit('send alert', 'connected', username);
+            });
+
+            $('#send-msg-btn').click(function (e) {
+                socket.emit('send message', username, $('#send-msg-input').val());
+                $('#send-msg-input').val('');
+                $('#send-msg-input').focus();
+                e.preventDefault();
+            });
+            $("#chat-exit-btn").click(function (e) {
+                socket.emit('send alert', 'disconnected', username);
+                socket.emit('disconnect from client');
+                location.reload();
+            })
+            socket.on('receive alert', function (msg) {
+                $('#chat-log').append("<p class='text-center' role='alert'>" + msg + "</p>");
+                $('#chat-log').scrollTop($('#chat-log')[0].scrollHeight);
+            });
+
+            socket.on('receive message', function (msg, id) {
+                if (socketId === id) {
+                    $('#chat-log').append("<p class='text-right' role='alert'>" + msg + "</p>");
+                } else {
+                    $('#chat-log').append("<p class='text-left' role='alert'>" + msg + "</p>");
+                }
+                $('#chat-log').scrollTop($('#chat-log')[0].scrollHeight);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
